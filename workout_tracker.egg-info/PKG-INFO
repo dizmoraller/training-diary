@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: workout-tracker
+Version: 0.1.0
+Summary: Workout tracking web app backend
+Requires-Python: >=3.11
+Requires-Dist: fastapi<1.0,>=0.115
+Requires-Dist: psycopg[binary]<4.0,>=3.1
+Requires-Dist: sqlalchemy<3.0,>=2.0
+Requires-Dist: uvicorn<1.0,>=0.35
+Provides-Extra: test
+Requires-Dist: httpx<1.0,>=0.28; extra == "test"
+Requires-Dist: pytest<9.0,>=8.3; extra == "test"

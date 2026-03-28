@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: workout_tracker
+      POSTGRES_USER: workout_tracker
+      POSTGRES_PASSWORD: workout_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - workout_tracker_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workout_tracker -d workout_tracker"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql+psycopg://workout_tracker:workout_tracker@db:5432/workout_tracker
+      APP_SECRET_KEY: change-me
+      DEFAULT_ADMIN_LOGIN: admin
+      DEFAULT_ADMIN_PASSWORD: password123
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    profiles:
+      - frontend
+    image: node:22-alpine
+    working_dir: /app/frontend
+    volumes:
+      - .:/app
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 3000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  workout_tracker_db:
